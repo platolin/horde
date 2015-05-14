@@ -572,6 +572,7 @@ implements Horde_Kolab_Storage_Data, Horde_Kolab_Storage_Data_Query
      */
     public function getQuery($name = null)
     {
-        return $this->_data->getQuery($name);
+        $query = $this->_data->getQuery($name);
+        $query->setLogger($this->_logger);
     }
 }
