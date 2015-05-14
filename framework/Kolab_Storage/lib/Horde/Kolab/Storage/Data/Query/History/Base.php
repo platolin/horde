@@ -74,8 +74,6 @@ implements Horde_Kolab_Storage_Data_Query_History
      * @param array $params Additional parameters:
      *   - changes: (array)  An array of arrays keyed by backend id containing
      *                       information about each change.
-     *
-     * @return NULL
      */
     public function synchronize($params = array())
     {
