@@ -90,7 +90,9 @@ implements Horde_Kolab_Storage_Data_Query_History
      *
      * @param array $params Additional parameters:
      *   - changes: (array)  An array of arrays keyed by backend id containing
-     *                       information about each change.
+     *                       information about each change. If not present,
+     *                       triggers a full history sync.
+     *   - is_reset: (boolean)  If true, indicates that UIDVALIDITY changed.
      */
     public function synchronize($params = array())
     {
@@ -111,7 +113,6 @@ implements Horde_Kolab_Storage_Data_Query_History
                 if (empty($prefix)) {
                     return;
                 }
-
                 $this->_logger->debug(sprintf(
                     'History: Incremental update for user: %s, folder: %s, prefix: %s',
                     $user, $folder, $prefix)
@@ -121,6 +122,7 @@ implements Horde_Kolab_Storage_Data_Query_History
             foreach ($added as $bid => $object) {
                 $this->_updateLog($prefix.$object['uid'], $bid);
             }
+
             foreach ($deleted as $bid => $object_uid) {
                 // Check if the object is really gone from the folder.
                 // Otherwise we just deleted a duplicated object or updated the original one.
@@ -137,29 +139,27 @@ implements Horde_Kolab_Storage_Data_Query_History
                     $bid, $object_uid)
                 );
                 $this->_history->log(
-                    $prefix.$object_uid, array('action' => 'delete', 'bid' => $bid), true
+                    $prefix . $object_uid, array('action' => 'delete', 'bid' => $bid), true
                 );
             }
         } else {
+            // Full sync. Either our timestamp is too old or the IMAP
+            // uidvalidity changed.
             $prefix = $this->_constructHistoryPrefix();
             if (empty($prefix)) {
                 return;
             }
-
             $this->_logger->debug(sprintf(
                 'History: Full history sync for user: %s, folder: %s, is_reset: %d, prefix: %s',
                 $user, $folder, $is_reset, $prefix)
             );
-
-            // Full sync. Either our timestamp is too old
-            // or the IMAP uidvalidity changed
             $this->_completeSynchronization($prefix, $is_reset);
         }
     }
 
     /**
      * Perform a complete synchronization.
-     * Also markes stale history entries as 'deleted'.
+     * Also marks stale history entries as 'deleted'.
      *
      * @param string $prefix     Horde_History prefix
      * @param boolean $is_reset  Flag to indicate if the UIDVALIDITY changed
@@ -168,12 +168,12 @@ implements Horde_Kolab_Storage_Data_Query_History
     {
         $seen_objects = array();
         foreach ($this->_data->getObjectToBackend() as $object => $bid) {
-            $full_id = $prefix.$object;
+            $full_id = $prefix . $object;
             $this->_updateLog($full_id, $bid, $is_reset);
             $seen_objects[$full_id] = true;
         }
 
-        // cut of last ':'
+        // cut off last ':'
         $search_prefix = substr($prefix, 0, -1);
 
         // clean up history database: Mark stale entries as deleted
@@ -244,7 +244,7 @@ implements Horde_Kolab_Storage_Data_Query_History
             return '';
         }
 
-        $this->_prefix = $app.':'.$share_id.':';
+        $this->_prefix = $app . ':' . $share_id . ':';
 
         return $this->_prefix;
     }
@@ -278,7 +278,7 @@ implements Horde_Kolab_Storage_Data_Query_History
      * @param string $bid     The backend ID of the object.
      * @param boolean $force  Force update
      */
-    protected function _updateLog($object, $bid, $force=false)
+    protected function _updateLog($object, $bid, $force = false)
     {
         $last = $this->_history->getLatestEntry($object);
         if ($last === false) {
