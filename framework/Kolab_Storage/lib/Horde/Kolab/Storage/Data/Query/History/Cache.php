@@ -80,4 +80,5 @@ extends Horde_Kolab_Storage_Data_Query_History_Base
             );
         }
     }
+
 }
