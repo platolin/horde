@@ -162,12 +162,10 @@ implements Horde_Kolab_Storage_Data_Query_History
      * Perform a complete synchronization.
      * Also markes stale history entries as 'deleted'.
      *
-     * @param string $prefix Horde_History prefix
-     * @param boolean $is_reset Flag to indicate if the UIDVALIDITY changed
-     *
-     * @return NULL
+     * @param string $prefix     Horde_History prefix
+     * @param boolean $is_reset  Flag to indicate if the UIDVALIDITY changed
      */
-    private function _completeSynchronization($prefix, $is_reset)
+    protected function _completeSynchronization($prefix, $is_reset)
     {
         $seen_objects = array();
         foreach ($this->_data->getObjectToBackend() as $object => $bid) {
@@ -255,7 +253,7 @@ implements Horde_Kolab_Storage_Data_Query_History
     /**
      * Map Kolab object type to horde application name.
      *
-     * @param string $type Kolab object type
+     * @param string $type  Kolab object type
      *
      * @return string The horde application name. Empty string if unknown
      */
@@ -277,14 +275,11 @@ implements Horde_Kolab_Storage_Data_Query_History
     /**
      * Update the history log for an object.
      *
-     * @param string                           $object The object ID.
-     * @param string                           $bid    The backend ID of
-     *                                                 the object.
-     * @param bool                             $force  Force update
-     *
-     * @return NULL
+     * @param string $object  The object ID.
+     * @param string $bid     The backend ID of the object.
+     * @param boolean $force  Force update
      */
-    private function _updateLog($object, $bid, $force=false)
+    protected function _updateLog($object, $bid, $force=false)
     {
         $last = $this->_history->getLatestEntry($object);
         if ($last === false) {
