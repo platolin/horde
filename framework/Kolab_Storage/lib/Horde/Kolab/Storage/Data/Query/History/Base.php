@@ -1,4 +1,4 @@
-\<?php
+<?php
 /**
  * The hook that updates the Horde history information once data gets
  * synchronized with the Kolab backend.
